@@ -92,7 +92,7 @@ JNI_METHOD(void, cryptominisat_1delete)
   }
 
 JNI_METHOD(void, cryptominisat_1terminate)
-  (JNIEnv * env, jlong p) {
+  (JNIEnv * env, jobject, jlong p) {
     decode(p)->interrupt_asap();
   }
 
