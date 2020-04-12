@@ -154,8 +154,9 @@ class JCadical : AutoCloseable {
 
     fun solve(): Boolean {
         return when (val result = cadical_solve(handle)) {
-            10 -> true
-            20 -> false
+            0 -> false // UNSOLVED
+            10 -> true // SATISFIABLE
+            20 -> false // UNSATISFIABLE
             else -> error("cadical_solve returned $result")
         }
     }
@@ -239,16 +240,12 @@ fun main() {
         println("model = ${getModel().drop(1)}")
 
         println("Solving with assumptions...")
-        addAssumption(y)
-        check(solve())
-        addAssumption(-y)
-        check(!solve())
+        check(solve(y))
+        check(solve(-y))
 
         val t = newVariable()
-        addAssumption(t)
-        check(solve())
-        addAssumption(-t)
-        check(solve())
+        check(solve(t))
+        check(solve(-t))
         println("Solving with assumptions: OK")
     }
 }

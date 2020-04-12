@@ -1,6 +1,6 @@
 name: Build
 
-on: push
+on: [push, pull_request]
 
 jobs:
   build:
@@ -24,17 +24,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Build shared libraries using Docker
-        run: |
-          make headers libs-docker res
+      - name: Compile classes
+        run: ./gradlew classes --stacktrace
 
-      - name: Install solver libs
+      - name: Build solver shared libraries using Docker
         run: |
+          make solver-libs-docker
           sudo install -m 644 build/lib/libminisat.so /usr/lib
           sudo install -m 644 build/lib/libcadical.so /usr/lib
+          sudo install -m 644 build/lib/libcryptominisat5.so /usr/lib
+
+      - name: Build JNI-wrapper shared libraries
+        run: |
+          make headers libs res
 
       - name: Build package using Gradle wrapper
-        run: ./gradlew build
+        run: ./gradlew build --stacktrace --scan
 
       - name: Upload to GH Releases
         uses: softprops/action-gh-release@v0.1.5
@@ -45,5 +50,7 @@ jobs:
           files: |
             build/lib/libjminisat.so
             build/lib/libjcadical.so
+            build/lib/libjcms.so
             build/lib/libminisat.so
             build/lib/libcadical.so
+            build/lib/libcryptominisat5.so
